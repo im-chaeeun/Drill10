@@ -167,9 +167,9 @@ class Boy:
         self.state_machine.draw()
 
     def fire_ball(self):
-        ball = Ball()
+        ball = Ball(self.x, self.y - 25, 10 * self.face_dir)
         # 생성한 ball을 월드에 넣어줘야 된다.
-        game_world.add_object(ball, 1)
+        game_world.add_object(ball, 0)
 
         if self.face_dir == 1:
             print('Fire ball to right')
