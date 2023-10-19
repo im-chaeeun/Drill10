@@ -2,6 +2,8 @@
 
 from pico2d import get_time, load_image, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT
 
+import game_world
+from ball import Ball
 # state event check
 # ( state event type, event value )
 
@@ -45,7 +47,8 @@ class Idle:
 
     @staticmethod
     def exit(boy, e):
-        pass
+        if space_down(e):
+            boy.fire_ball()     # 함수를 호출하고 정의하기!!!
 
     @staticmethod
     def do(boy):
@@ -70,7 +73,8 @@ class Run:
 
     @staticmethod
     def exit(boy, e):
-        pass
+        if space_down(e):
+            boy.fire_ball()
 
     @staticmethod
     def do(boy):
@@ -114,9 +118,9 @@ class StateMachine:
         self.boy = boy
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Sleep},
-            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle},
-            Sleep: {right_down: Run, left_down: Run, right_up: Run, left_up: Run, space_down: Idle}
+            Idle: {space_down: Idle, right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Sleep},
+            Run: {space_down: Run, right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle},
+            Sleep: {right_down: Run, left_down: Run, right_up: Run, left_up: Run}
         }
 
     def start(self):
@@ -146,9 +150,9 @@ class Boy:
     def __init__(self):
         self.x, self.y = 400, 90
         self.frame = 0
-        self.action = 3
-        self.dir = 0
-        self.face_dir = 1
+        self.action = 3     # 오른쪽 IDLE
+        self.dir = 0    # 속도
+        self.face_dir = 1   # 바라보는 방향 변수, 오른쪽 방향 얼굴을 향함
         self.image = load_image('animation_sheet.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
@@ -161,3 +165,13 @@ class Boy:
 
     def draw(self):
         self.state_machine.draw()
+
+    def fire_ball(self):
+        ball = Ball()
+        # 생성한 ball을 월드에 넣어줘야 된다.
+        game_world.add_object(ball, 1)
+
+        if self.face_dir == 1:
+            print('Fire ball to right')
+        elif self.face_dir == -1:
+            print('Fire ball to left')
